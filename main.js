@@ -138,9 +138,20 @@ app.get('/', (req, res) => {
 
 app.get('/history', (req, res) => {
     try {
-        const messages = messageHistory.map(msg => msg.message).join('\n');
+        // Send response indicating WebSocket messages will be sent
         res.type('text/plain');
-        res.send(messages);
+        res.send(`Sending ${messageHistory.length} messages via WebSocket...`);
+        
+        // Send each message as individual WebSocket messages to all connected clients
+        messageHistory.forEach((messageData, index) => {
+            setTimeout(() => {
+                wss.clients.forEach((client) => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(messageData.message);
+                    }
+                });
+            }, index * 100); // 100ms delay between messages
+        });
     } catch (error) {
         console.error('Error retrieving message history:', error);
         res.status(500).send('Error retrieving message history');
