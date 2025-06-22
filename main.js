@@ -7,7 +7,7 @@ const app = express();
 app.use(express.static("public"));
 // require("dotenv").config();
 
-const serverPort = process.env.PORT || 3000;
+const serverPort = 5000;
 const server = http.createServer(app);
 const WebSocket = require("ws");
 
@@ -16,13 +16,13 @@ let messageHistory = [];
 const MAX_MESSAGES = 30;
 const MESSAGES_FILE = path.join(__dirname, 'messages.json');
 
-const wss =
-  process.env.NODE_ENV === "production"
-    ? new WebSocket.Server({ server })
-    : new WebSocket.Server({ port: 5001 });
+const wss = new WebSocket.Server({ 
+  server,
+  path: '/ws'
+});
 
-server.listen(serverPort);
-console.log(`Server started on port ${serverPort} in stage ${process.env.NODE_ENV}`);
+server.listen(serverPort, '0.0.0.0');
+console.log(`Server started on port ${serverPort} with WebSocket endpoint at /ws`);
 
 wss.on("connection", function (ws, req) {
   console.log("Connection Opened");
