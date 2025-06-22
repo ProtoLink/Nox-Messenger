@@ -135,3 +135,14 @@ loadMessagesFromFile();
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
+
+app.get('/history', (req, res) => {
+    try {
+        const messages = messageHistory.map(msg => msg.message).join('\n');
+        res.type('text/plain');
+        res.send(messages);
+    } catch (error) {
+        console.error('Error retrieving message history:', error);
+        res.status(500).send('Error retrieving message history');
+    }
+});
