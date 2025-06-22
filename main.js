@@ -34,7 +34,7 @@ wss.on("connection", function (ws, req) {
       console.log('keepAlive');
       return;
     }
-    broadcast(ws, stringifiedData, false);
+    broadcast(ws, stringifiedData, true);
   });
 
   ws.on("close", (data) => {
