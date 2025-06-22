@@ -23,11 +23,12 @@ wss.on("connection", function (ws, req) {
   console.log("Connection Opened");
   console.log("Client size: ", wss.clients.size);
 
+  /*
   if (wss.clients.size === 1) {
     console.log("first connection. starting keepalive");
     keepServerAlive();
   }
-
+*/
   ws.on("message", (data) => {
     let stringifiedData = data.toString();
     if (stringifiedData === 'pong') {
