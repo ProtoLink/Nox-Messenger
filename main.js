@@ -1,5 +1,7 @@
 const http = require("http");
 const express = require("express");
+const fs = require("fs");
+const path = require("path");
 const app = express();
 
 app.use(express.static("public"));
@@ -10,6 +12,9 @@ const server = http.createServer(app);
 const WebSocket = require("ws");
 
 let keepAliveId;
+let messageHistory = [];
+const MAX_MESSAGES = 30;
+const MESSAGES_FILE = path.join(__dirname, 'messages.json');
 
 const wss =
   process.env.NODE_ENV === "production"
@@ -18,6 +23,9 @@ const wss =
 
 server.listen(serverPort);
 console.log(`Server started on port ${serverPort} in stage ${process.env.NODE_ENV}`);
+
+// Load existing messages from file
+loadMessagesFromFile();
 
 wss.on("connection", function (ws, req) {
   console.log("Connection Opened");
@@ -35,6 +43,24 @@ wss.on("connection", function (ws, req) {
       console.log('keepAlive');
       return;
     }
+    
+    // Store message in history
+    const messageData = {
+      timestamp: new Date().toISOString(),
+      message: stringifiedData,
+      clientId: req.socket.remoteAddress + ':' + req.socket.remotePort
+    };
+    
+    messageHistory.push(messageData);
+    
+    // Keep only the latest 30 messages
+    if (messageHistory.length > MAX_MESSAGES) {
+      messageHistory.shift();
+    }
+    
+    // Save to JSON file
+    saveMessagesToFile();
+    
     broadcast(ws, stringifiedData, true);
   });
 
@@ -62,6 +88,33 @@ const broadcast = (ws, message, includeSelf) => {
         client.send(message);
       }
     });
+  }
+};
+
+/**
+ * Saves message history to JSON file
+ */
+const saveMessagesToFile = () => {
+  try {
+    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messageHistory, null, 2));
+  } catch (error) {
+    console.error('Error saving messages to file:', error);
+  }
+};
+
+/**
+ * Loads message history from JSON file on startup
+ */
+const loadMessagesFromFile = () => {
+  try {
+    if (fs.existsSync(MESSAGES_FILE)) {
+      const data = fs.readFileSync(MESSAGES_FILE, 'utf8');
+      messageHistory = JSON.parse(data);
+      console.log(`Loaded ${messageHistory.length} messages from file`);
+    }
+  } catch (error) {
+    console.error('Error loading messages from file:', error);
+    messageHistory = [];
   }
 };
 
