@@ -47,8 +47,7 @@ wss.on("connection", function (ws, req) {
     // Store message in history
     const messageData = {
       timestamp: new Date().toISOString(),
-      message: stringifiedData,
-      clientId: req.socket.remoteAddress + ':' + req.socket.remotePort
+      message: stringifiedData
     };
     
     messageHistory.push(messageData);
