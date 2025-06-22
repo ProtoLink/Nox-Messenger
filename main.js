@@ -38,7 +38,11 @@ wss.on("connection", function (ws, req) {
       console.log('keepAlive');
       return;
     }
-    broadcast(ws, stringifiedData);
+    broadcast(ws, stringifiedData, false);
+
+    socket.on('Incoming', newMsg => {
+      wss.emit('Outgoing', newMsg)
+    })
   });
 
   ws.on("close", (data) => {
@@ -52,21 +56,20 @@ wss.on("connection", function (ws, req) {
 });
 
 // Implement broadcast function because of ws doesn't have it
-const broadcast = (ws, message) => {
-  if (client.readyState === WebSocket.OPEN) {
-    client.emit(message);
+const broadcast = (ws, message, includeSelf) => {
+  if (includeSelf) {
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
+  } else {
+    wss.clients.forEach((client) => {
+      if (client !== ws && client.readyState === WebSocket.OPEN) {
+        client.send(message);
+      }
+    });
   }
-  //wss.clients.forEach((client) => {
-  //  });
-  //if (includeSelf) {
-  //  
-  //} else {
-  //  wss.clients.forEach((client) => {
-  //    if (client !== ws && client.readyState === WebSocket.OPEN) {
-  //      client.send(message);
-  //    }
-  //  });
-  //}
 };
 
 /**
