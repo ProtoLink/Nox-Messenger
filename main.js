@@ -7,22 +7,25 @@ const app = express();
 app.use(express.static("public"));
 // require("dotenv").config();
 
-const serverPort = 5000;
+// Load configuration
+const config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
+
+const serverPort = config.server.port;
 const server = http.createServer(app);
 const WebSocket = require("ws");
 
 let keepAliveId;
 let messageHistory = [];
-const MAX_MESSAGES = 30;
-const MESSAGES_FILE = path.join(__dirname, 'messages.json');
+const MAX_MESSAGES = config.messageHistory.maxMessages;
+const MESSAGES_FILE = path.join(__dirname, config.messageHistory.filename);
 
 const wss = new WebSocket.Server({ 
   server,
-  path: '/ws'
+  path: config.websocket.path
 });
 
-server.listen(serverPort, '0.0.0.0');
-console.log(`Server started on port ${serverPort} with WebSocket endpoint at /ws`);
+server.listen(serverPort, config.server.host);
+console.log(`Server started on port ${serverPort} with WebSocket endpoint at ${config.websocket.path}`);
 
 wss.on("connection", function (ws, req) {
   console.log("Connection Opened");
@@ -92,6 +95,8 @@ const broadcast = (ws, message, includeSelf) => {
  * Saves message history to JSON file
  */
 const saveMessagesToFile = () => {
+  if (!config.messageHistory.saveToFile) return;
+  
   try {
     fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messageHistory, null, 2));
   } catch (error) {
@@ -119,7 +124,7 @@ const loadMessagesFromFile = () => {
 loadMessagesFromFile();
 
 /**
- * Sends a ping message to all connected clients every 50 seconds
+ * Sends a ping message to all connected clients based on config interval
  */
  const keepServerAlive = () => {
   keepAliveId = setInterval(() => {
@@ -128,7 +133,7 @@ loadMessagesFromFile();
         client.send('ping');
       }
     });
-  }, 50000);
+  }, config.websocket.keepAliveInterval);
 };
 
 
