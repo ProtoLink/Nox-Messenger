@@ -24,9 +24,6 @@ const wss =
 server.listen(serverPort);
 console.log(`Server started on port ${serverPort} in stage ${process.env.NODE_ENV}`);
 
-// Load existing messages from file
-loadMessagesFromFile();
-
 wss.on("connection", function (ws, req) {
   console.log("Connection Opened");
   console.log("Client size: ", wss.clients.size);
@@ -117,6 +114,9 @@ const loadMessagesFromFile = () => {
     messageHistory = [];
   }
 };
+
+// Load existing messages from file
+loadMessagesFromFile();
 
 /**
  * Sends a ping message to all connected clients every 50 seconds
