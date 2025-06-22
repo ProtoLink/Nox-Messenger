@@ -1,3 +1,4 @@
+modules = ["nodejs-20"]
 [workflows]
 runButton = "Run"
 
@@ -8,4 +9,12 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm start"
+args = "node main.js"
+
+[[ports]]
+localPort = 3000
+externalPort = 3000
+
+[[ports]]
+localPort = 5001
+externalPort = 80
