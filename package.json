@@ -1,5 +1,5 @@
 {
-  "name": "socket-server-template",
+  "name": "Socket-Server-Template",
   "version": "1.0.0",
   "description": "Web Socket Node Server Example",
   "main": "main.js",
@@ -15,16 +15,6 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "socket.io": "^4.8.1",
     "ws": "^8.2.2"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ProtoLink/Nox-Messenger.git"
-  },
-  "keywords": [],
-  "bugs": {
-    "url": "https://github.com/ProtoLink/Nox-Messenger/issues"
-  },
-  "homepage": "https://github.com/ProtoLink/Nox-Messenger#readme"
+  }
 }
