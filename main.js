@@ -2,6 +2,8 @@ const http = require("http");
 const express = require("express");
 const app = express();
 
+const { Socket } = require('socket.io')
+
 app.use(express.static("public"));
 // require("dotenv").config();
 
@@ -19,6 +21,8 @@ const wss =
 server.listen(serverPort);
 console.log(`Server started on port ${serverPort} in stage ${process.env.NODE_ENV}`);
 
+
+
 wss.on("connection", function (ws, req) {
   console.log("Connection Opened");
   console.log("Client size: ", wss.clients.size);
@@ -35,6 +39,10 @@ wss.on("connection", function (ws, req) {
       return;
     }
     broadcast(ws, stringifiedData, false);
+
+    socket.on('Incoming', newMsg => {
+      wss.emit('Outgoing', newMsg)
+    })
   });
 
   ws.on("close", (data) => {
@@ -76,6 +84,7 @@ const broadcast = (ws, message, includeSelf) => {
     });
   }, 50000);
 };
+
 
 
 app.get('/', (req, res) => {
