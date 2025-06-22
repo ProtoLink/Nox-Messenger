@@ -57,6 +57,9 @@ typings/
 # dotenv environment variables file
 .env
 
+# Replit configuration
+.replit
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 
